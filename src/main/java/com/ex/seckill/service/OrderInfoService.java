@@ -6,4 +6,6 @@ import com.ex.seckill.vo.GoodsVo;
 
 public interface OrderInfoService {
     OrderInfo createOrder(User user, GoodsVo goods);
+
+    OrderInfo getOrderInfoByid(long orderId);
 }

@@ -87,16 +87,16 @@ public class UserServiceImpl implements UserService{
             if(!oldPassword.equals(user.getPassword())){
                 return ServerResponse.createByErrorMessage("输入的旧密码不正确");
             }
-            //先删除redis中缓存（双写一致）
-            redisService.delete(UserKey.getById,String.valueOf(userVo.getId()));
             //更新密码
             User updateUser=new User();
             updateUser.setId(userVo.getId());
             updateUser.setPassword(MD5Util.fromPassToDbPass(userVo.getNewPassword(),user.getSalt()));
             userMapper.updateByPrimaryKeySelective(updateUser);
             user.setPassword(updateUser.getPassword());
-            //再删除redis中缓存（双写一致）
+            Thread.sleep(50);
+            //删除redis中缓存（双写一致）
             redisService.delete(UserKey.getById,String.valueOf(userVo.getId()));
+            redisService.delete(TokenKey.token,userVo.getToken());
             //把新的user在redis中更新
             redisService.set(UserKey.getById,String.valueOf(userVo.getId()),user);
             //更新token中的user

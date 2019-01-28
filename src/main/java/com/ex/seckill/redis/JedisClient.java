@@ -1,5 +1,8 @@
 package com.ex.seckill.redis;
 
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
+
 public interface JedisClient {
     public String set(String key, String value);
 
@@ -8,6 +11,7 @@ public interface JedisClient {
     public String get(String key);
 
     public Long del(String key);
+    public Long del(String[] key);
 
     public Long hset(String key, String item, String value);
 
@@ -24,4 +28,6 @@ public interface JedisClient {
     public Long hdel(String key, String item);
 
     public Boolean exists(String key);
+
+    ScanResult<String> scan(String cursor, ScanParams sp);
 }

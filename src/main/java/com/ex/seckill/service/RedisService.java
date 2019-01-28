@@ -10,7 +10,7 @@ public interface RedisService {
 
     <T> boolean exist(KeyPrefix prefix,String key);
     <T> Long delete(KeyPrefix prefix,String key);
-
+    boolean delete(KeyPrefix prefix);
     <T> Long incr(KeyPrefix prefix,String key);
     <T> Long decr(KeyPrefix prefix, String key);
 }

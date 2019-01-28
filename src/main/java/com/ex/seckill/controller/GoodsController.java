@@ -5,6 +5,8 @@ import com.ex.seckill.domain.User;
 import com.ex.seckill.service.GoodsService;
 import com.ex.seckill.service.RedisService;
 import com.ex.seckill.service.UserService;
+import com.ex.seckill.utils.ServerResponse;
+import com.ex.seckill.vo.GoodsDetailVo;
 import com.ex.seckill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
@@ -52,9 +55,46 @@ public class GoodsController {
         model.addAttribute("goodsList",goodsList);
         return "goods_list";
     }
-    @RequestMapping(value="/to_detail/{goodsId}",produces = "text/html")
+    @RequestMapping(value="/to_detail/{goodsId}",method = RequestMethod.GET)
     @ResponseBody
-    public String toDetail(HttpServletRequest request, HttpServletResponse response,Model model, GoodsVo goodsVo, @PathVariable("goodsId")long goodsId, User user){
+    public ServerResponse<GoodsDetailVo> toDetail(HttpServletRequest request, HttpServletResponse response, Model model, GoodsVo goodsVo, @PathVariable("goodsId")long goodsId, User user){
+        if(null==user){
+            return ServerResponse.createByErrorMessage("请登陆！");
+        }
+        if(goodsId==0){
+            return ServerResponse.createByErrorMessage("请选择商品！");
+        }
+        GoodsVo goods=goodsService.selectGoodVoById(goodsId);
+        long startAt=goods.getStartDate().getTime();
+        long endAt=goods.getEndDate().getTime();
+        long now=System.currentTimeMillis();
+
+        int seckillStatus=0;
+        int remainSeconds=0;
+        if(now<startAt){
+            //秒杀还没开始
+            seckillStatus=0;
+            remainSeconds=(int)(startAt-now)/1000;
+        }else if(now>endAt){
+            //秒杀已经结束
+            seckillStatus=2;
+            remainSeconds=-1;
+        }else{
+            //秒杀正在进行中
+            seckillStatus=1;
+            remainSeconds=1;
+        }
+        GoodsDetailVo goodsDetailVo=new GoodsDetailVo();
+        goodsDetailVo.setGoods(goods);
+        goodsDetailVo.setUser(user);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+        goodsDetailVo.setSeckillStatus(seckillStatus);
+        return ServerResponse.createBySuccess(goodsDetailVo);
+    }
+
+    @RequestMapping(value="/to_detail2/{goodsId}",produces = "text/html")
+    @ResponseBody
+    public String toDetail2(HttpServletRequest request, HttpServletResponse response,Model model, GoodsVo goodsVo, @PathVariable("goodsId")long goodsId, User user){
         if(goodsId==0){
             return "";
         }

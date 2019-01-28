@@ -1,5 +1,6 @@
 package com.ex.seckill.config;
 
+import com.ex.seckill.access.UserContext;
 import com.ex.seckill.domain.User;
 import com.ex.seckill.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.getParameterType()== User.class;
+        Class<?> clazz = methodParameter.getParameterType();
+        return clazz==User.class;
     }
 
     @Nullable

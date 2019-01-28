@@ -6,4 +6,6 @@ public interface OrderService {
     Order getSeckillOrderByUserIdGoodsId(Long userId, long goodsId);
 
     int insert(Order order);
+
+    Order getOrderByid(long orderId);
 }

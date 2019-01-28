@@ -3,6 +3,8 @@ package com.ex.seckill.redis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 /**
  * redis客户端集群版实现类
@@ -32,6 +34,10 @@ public class JedisClientCluster implements JedisClient {
     @Override
     public Long del(String key) {
         return jedisCluster.del(key);
+    }
+    @Override
+    public Long del(String[] keys) {
+        return jedisCluster.del(keys);
     }
 
     @Override
@@ -72,5 +78,10 @@ public class JedisClientCluster implements JedisClient {
     @Override
     public Boolean exists(String key) {
         return jedisCluster.exists(key);
+    }
+
+    @Override
+    public ScanResult<String> scan(String cursor, ScanParams sp) {
+        return jedisCluster.scan(cursor,sp);
     }
 }

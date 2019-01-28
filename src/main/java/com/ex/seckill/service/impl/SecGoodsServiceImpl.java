@@ -13,9 +13,9 @@ public class SecGoodsServiceImpl implements SecGoodsService {
     private SecGoodsMapper secGoodsMapper;
 
     @Override
-    public void reduceStock(GoodsVo goods) {
+    public boolean reduceStock(GoodsVo goods) {
         SecGoods secGoods=new SecGoods();
         secGoods.setGoodsId(goods.getId());
-        secGoodsMapper.reduceSecGoodsStock(secGoods);
+        return secGoodsMapper.reduceSecGoodsStock(secGoods)>0;
     }
 }

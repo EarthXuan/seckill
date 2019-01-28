@@ -1,11 +1,13 @@
 package com.ex.seckill.service.impl;
 
+import com.ex.seckill.common.impl.OrderKey;
 import com.ex.seckill.dao.OrderInfoMapper;
 import com.ex.seckill.domain.Order;
 import com.ex.seckill.domain.OrderInfo;
 import com.ex.seckill.domain.User;
 import com.ex.seckill.service.OrderInfoService;
 import com.ex.seckill.service.OrderService;
+import com.ex.seckill.service.RedisService;
 import com.ex.seckill.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private OrderInfoMapper orderInfoMapper;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private RedisService redisService;
     @Transactional
     @Override
     public OrderInfo createOrder(User user, GoodsVo goods) {
@@ -36,9 +40,15 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         long orderInfoId=orderInfoMapper.insert(orderInfo);
         Order order=new Order();
         order.setGoodsId(goods.getId());
-        order.setOrderId(orderInfoId);
+        order.setOrderId(orderInfo.getId());
         order.setUserId(user.getId());
         orderService.insert(order);
+        redisService.set(OrderKey.getByUidGid,String.valueOf(user.getId())+"_"+String.valueOf(goods.getId()),order);
         return orderInfo;
+    }
+
+    @Override
+    public OrderInfo getOrderInfoByid(long orderId) {
+        return orderInfoMapper.selectByPrimaryKey(orderId);
     }
 }

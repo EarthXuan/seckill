@@ -11,6 +11,5 @@ public class OrderKey extends BasePrefix{
         super(prefix);
     }
 
-    public static OrderKey getById=new OrderKey("id");
-    public static OrderKey getByName=new OrderKey("name");
+    public static OrderKey getByUidGid=new OrderKey(3600,"order_seckill");
 }

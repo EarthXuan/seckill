@@ -6,8 +6,12 @@ import com.ex.seckill.redis.JedisClient;
 import com.ex.seckill.service.RedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class RedisServiceImpl implements RedisService{
@@ -35,18 +39,48 @@ public class RedisServiceImpl implements RedisService{
     }
 
     public <T> boolean exist(KeyPrefix prefix,String key){
-        return jedisClient.exists(prefix+key);
+        return jedisClient.exists(prefix.getPrefix()+key);
     }
 
     public <T> Long delete(KeyPrefix prefix,String key){
-        return jedisClient.del(prefix+key);
+        return jedisClient.del(prefix.getPrefix()+key);
     }
 
     public <T> Long incr(KeyPrefix prefix,String key){
-        return jedisClient.incr(prefix+key);
+        return jedisClient.incr(prefix.getPrefix()+key);
     }
     public <T> Long decr(KeyPrefix prefix,String key){
-        return jedisClient.decr(prefix+key);
+        return jedisClient.decr(prefix.getPrefix()+key);
+    }
+
+    public boolean delete(KeyPrefix prefix) {
+        if(prefix == null) {
+            return false;
+        }
+        List<String> keys = scanKeys(prefix.getPrefix());
+        if(keys==null || keys.size() <= 0) {
+            return true;
+        }
+        jedisClient.del(keys.toArray(new String[0]));
+            return true;
+    }
+
+    public List<String> scanKeys(String key) {
+            List<String> keys = new ArrayList<String>();
+            String cursor = "0";
+            ScanParams sp = new ScanParams();
+            sp.match("*{"+key+"}*");
+            sp.count(100);
+            do{
+                ScanResult<String> ret = jedisClient.scan(cursor, sp);
+                List<String> result = ret.getResult();
+                if(result!=null && result.size() > 0){
+                    keys.addAll(result);
+                }
+                //再处理cursor
+                cursor = ret.getStringCursor();
+            }while(!cursor.equals("0"));
+            return keys;
     }
 
     private <T> String beanToString(T value) {

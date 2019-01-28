@@ -12,4 +12,5 @@ public class GoodsKey extends BasePrefix{
     }
 
     public static GoodsKey getGoodsDetailPage=new GoodsKey(60,"goodsDetailPage");
+    public static GoodsKey getSeckillGoodsStock=new GoodsKey("seckillGoodsStock");
 }
